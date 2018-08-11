@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import './App.sass';
-import Sidebar from './components/Sidebar';
-import MessagesList from './components/MessagesList';
-import NewMessage from './components/NewMessage';
+import { Sidebar } from './containers/Sidebar';
+import { MessagesList } from './containers/MessagesList';
+import { AddMessage } from './containers/AddMessage';
 
 class App extends Component {
   render() {
@@ -11,7 +11,7 @@ class App extends Component {
         <Sidebar />
         <main>
           <MessagesList />
-          <NewMessage />
+          <AddMessage />
         </main>
       </section>
     );
