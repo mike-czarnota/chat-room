@@ -18,3 +18,9 @@ export const handleNewRoom = function* handleNewRoom(params) {
     params.socket.send(JSON.stringify(action));
   });
 };
+
+export const handleLogout = function* handleNewRoom(params) {
+  yield takeEvery(types.LOGOUT_USER, action => {
+    params.socket.send(JSON.stringify(action));
+  });
+};

@@ -8,11 +8,11 @@ const setupSocket = dispatch => {
     const data = JSON.parse(event.data);
     switch (data.type) {
       case types.ROOMS_LIST:
-      dispatch(actions.populateRoomsList(data.rooms));
+      dispatch(actions.populateRoomsList(data.payload));
       break;
 
-      case types.CURRENT_ROOM:
-      dispatch(actions.updateCurrentRoom(data.payload));
+      case types.USER_SAVED:
+      dispatch(actions.userSaved(data.payload));
       break;
 
       default:

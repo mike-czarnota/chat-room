@@ -4,46 +4,16 @@ const wss = new WebSocket.Server({
   port: 8989
 });
 
-const database = [
-{
-  id: 0,
-  name: 'general',
-  users: ['John', 'Mack'],
-  messages: [
-  {
-    author: 'John',
-    message: 'Hi'
-  },
-  {
-    author: 'Mack',
-    message: 'Hi there'
-  }
-  ]
-},
-{
-  id: 1,
-  name: 'random',
-  users: ['Johny', 'Mack', 'Kate'],
-  messages: [
-  {
-    author: 'Johny',
-    message: 'Hi there'
-  },
-  {
-    author: 'Mack',
-    message: 'Hi'
-  }
-  ]
-}
-];
+const database = [];
 
 const getDb = () => JSON.stringify({
   type: 'ROOMS_LIST',
-  rooms: database
+  payload: database
 });
 
-const broadcastToWS = data => {
+const broadcastToWS = (data, ws) => {
   wss.clients.forEach(client => {
+    if (ws && client === ws) return;
     if (client.readyState === WebSocket.OPEN) {
       client.send(data);
     }
@@ -52,49 +22,85 @@ const broadcastToWS = data => {
 
 const findRoomByUser = user => database.find(room => room.users.find(usr => usr === user));
 
+const removeUserFromRooms = user => {
+  let userIdx = -1;
+  const userRoom = database.find(room => {
+    const idx = room.users.findIndex(usr => usr === user);
+    if (idx > -1) {
+      userIdx = idx;
+      return true;
+    }
+  });
+  if (userRoom && userIdx > -1) {
+    userRoom.users.splice(userIdx, 1);
+  }
+};
+
 wss.on('connection', ws => {
-  let user = '';
 
   ws.send(getDb());
 
   ws.on('message', message => {
-    const data = JSON.parse(message);
+    let user = '';
     let currentRoom;
+    let userIdx = -1;
+    const data = JSON.parse(message);
+
     switch (data.type) {
+      case 'LOGOUT_USER':
+      user = data.payload;
+      currentRoom = database.find(room => {
+        const idx = room.users.findIndex(usr => usr === user);
+        if (idx > -1) {
+          userIdx = idx;
+          return true;
+        }
+      });
+      currentRoom.users.splice(userIdx, 1);
+      broadcastToWS(JSON.stringify({
+        type: 'ROOMS_LIST',
+        payload: database
+      }));
+      ws.send(JSON.stringify({
+        type: 'USER_SAVED',
+        payload: ''
+      }));
+      break;
+
       case 'SAVE_USER':
-      newUser = data.payload;
-      if (newUser) {
-        currentRoom = database[0];
-        currentRoom.users.push(newUser);
-        user = newUser;
+      user = data.payload.username;
+      if (data.payload.roomId) {
+        currentRoom = database[data.payload.roomId];
       }
       else {
-        currentRoom = findRoomByUser(user);
-        currentRoom.users.splice(currentRoom.users.findIndex(usr => usr === user), 1);
+        currentRoom = database[0];
       }
+      removeUserFromRooms(user);
+      currentRoom.users.push(user);
       ws.send(JSON.stringify({
-        type: 'CURRENT_ROOM',
-        payload: currentRoom
+        type: 'USER_SAVED',
+        payload: user
       }));
-      broadcastToWS(getDb(), ws);
+      broadcastToWS(JSON.stringify({
+        type: 'ROOMS_LIST',
+        payload: database
+      }));
       break;
 
       case 'ADD_MESSAGE':
-      currentRoom = findRoomByUser(data.author);
+      currentRoom = database[data.payload.roomId];
       currentRoom.messages.push({
-        author: data.author,
-        message: data.message
+        author: data.payload.author,
+        message: data.payload.message
       });
-      broadcastToWS(JSON.stringify({
-        type: 'CURRENT_ROOM',
-        payload: currentRoom
-      }));
+      broadcastToWS(getDb());
       break;
 
       case 'ADD_ROOM':
       database.push({
-        name: data.name,
+        name: data.payload,
         id: database.length,
+        messages: [],
         users: []
       });
       broadcastToWS(getDb());
@@ -103,14 +109,5 @@ wss.on('connection', ws => {
       default:
       break;
     }
-  });
-
-  ws.on('close', () => {
-    const currentRoom = findRoomByUser(user);
-    currentRoom.users.splice(currentRoom.users.findIndex(usr => usr === user), 1);
-    broadcastToWS(JSON.stringify({
-      type: 'CURRENT_ROOM',
-      payload: currentRoom
-    }));
   });
 });

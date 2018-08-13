@@ -18,6 +18,7 @@ const socket = setupSocket(store.dispatch);
 sagaMiddleware.run(sagas.handleNewMessage, { socket });
 sagaMiddleware.run(sagas.handleNewRoom, { socket });
 sagaMiddleware.run(sagas.handleNewUser, { socket });
+sagaMiddleware.run(sagas.handleLogout, { socket });
 
 ReactDOM.render(
   <Provider store={store}>

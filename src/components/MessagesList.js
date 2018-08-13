@@ -2,9 +2,17 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 class Sidebar extends Component {
-  constructor () {
-    super();
+  constructor (props) {
+    super(props);
     this.list = null;
+  }
+
+  getMessages () {
+    let messages = [];
+    if (this.props.rooms.length && this.props.currentRoom !== -1) {
+      messages = this.props.rooms[this.props.currentRoom].messages;
+    }
+    return messages;
   }
 
   componentDidUpdate () {
@@ -12,9 +20,10 @@ class Sidebar extends Component {
   }
 
   render () {
+    this.messages = this.getMessages();
     return (
       <section id="messages-list" ref={node => this.list = node}>
-        {this.props.messages && this.props.messages.map((msg, idx) => (
+        {this.messages && this.messages.map((msg, idx) => (
           <p key={idx}>
             <i>{msg.author}</i>: {msg.message}
           </p>
@@ -25,7 +34,8 @@ class Sidebar extends Component {
 }
 
 const mapStateToProps = state => ({
-  messages: state.currentRoom.messages
+  currentRoom: state.currentRoom,
+  rooms: state.rooms
 });
 
 export default connect(mapStateToProps, null)(Sidebar);

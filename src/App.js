@@ -9,17 +9,28 @@ import Login from './components/Login';
 import * as actions from './actions';
 
 class App extends Component {
-  componentDidUpdate () {
-    if (this.props.rooms.length && this.props.currentRoom.id == null) {
-      this.props.selectCurrentRoom(this.props.rooms[0]);
-    }
+  constructor (props) {
+    super(props);
+
+    this.handleUnload = this.handleUnload.bind(this);
+  }
+
+  componentDidMount () {
+    window.addEventListener('beforeunload', this.handleUnload);
+  }
+
+  componentwillUnmount () {
+    window.addEventListener('beforeunload', this.handleUnload);
+  }
+
+  handleUnload () {
+    this.props.user && this.props.logout(this.props.user);
   }
 
   render () {
     return (
       <div>
-        {!this.props.user ?
-          <Login /> :
+        {this.props.user && this.props.currentRoom > -1 ?
           <section id="container">
             <RoomsSidebar />
             <UsersSidebar />
@@ -28,6 +39,8 @@ class App extends Component {
               <AddMessage />
             </main>
           </section>
+          :
+          <Login />
         }
       </div>
     );
@@ -42,7 +55,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  selectCurrentRoom: room => dispatch(actions.selectCurrentRoom(room))
+  logout: user => dispatch(actions.logout(user))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

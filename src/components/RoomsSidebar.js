@@ -1,11 +1,24 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { addRoom } from "../actions";
+import * as actions from "../actions";
 
 class RoomsSidebar extends Component {
-  constructor () {
-    super();
+  constructor (props) {
+    super(props);
     this.newRoomInput = null;
+    this.currentRoomName = '';
+
+    this.setCurrentRoomName();
+  }
+
+  componentDidUpdate () {
+    this.setCurrentRoomName();
+  }
+
+  setCurrentRoomName () {
+    if (this.props.rooms.length && this.props.currentRoom !== -1) {
+      this.currentRoomName = this.props.rooms[this.props.currentRoom].name;
+    }
   }
 
   onSubmit (e) {
@@ -14,18 +27,32 @@ class RoomsSidebar extends Component {
     this.newRoomInput.value = '';
   }
 
+  chooseRoom (roomId) {
+    this.props.selectCurrentRoom(roomId);
+    this.props.saveUser({
+      username: this.props.user,
+      roomId
+    });
+  }
+
   render () {
     return (
       <aside id="roomssidebar">
         <h4>Rooms</h4>
-        {this.props.rooms && this.props.rooms.map(room => (
-          <li key={room.id}>
-            {room.name}
-          </li>
-        ))}
+        {this.currentRoomName && <p>Chosen room: <i>{this.currentRoomName}</i></p>}
+        <ul>
+          {this.props.rooms && this.props.rooms.map(room => {
+            const disabled = room.id === this.props.currentRoom;
+            return (
+              <li key={room.id}>
+                <button onClick={this.chooseRoom.bind(this, room.id)} disabled={disabled}>{room.name}</button>
+              </li>
+            )}
+          )}
+        </ul>
         <form onSubmit={this.onSubmit.bind(this)}>
           <input type="text" ref={node => this.newRoomInput = node}/>
-          <button type="submit">Add&choose room</button>
+          <button type="submit">Add room</button>
         </form>
       </aside>
     );
@@ -33,11 +60,15 @@ class RoomsSidebar extends Component {
 }
 
 const mapStateToProps = state => ({
-  rooms: state.rooms
+  currentRoom: state.currentRoom,
+  rooms: state.rooms,
+  user: state.user
 });
 
 const mapDispatchToProps = dispatch => ({
-  addRoom: roomName => dispatch(addRoom(roomName))
+  addRoom: roomName => dispatch(actions.addRoom(roomName)),
+  saveUser: roomId => dispatch(actions.saveUser(roomId)),
+  selectCurrentRoom: roomId => dispatch(actions.selectCurrentRoom(roomId))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(RoomsSidebar);

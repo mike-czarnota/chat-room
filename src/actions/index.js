@@ -2,18 +2,22 @@ import * as types from '../constants/ActionTypes';
 
 export const addMessage = data => ({
   type: types.ADD_MESSAGE,
-  message: data.message,
-  author: data.author
+  payload: data
 });
 
-export const saveUser = username => ({
+export const saveUser = data => ({
   type: types.SAVE_USER,
+  payload: data
+});
+
+export const logout = username => ({
+  type: types.LOGOUT_USER,
   payload: username
 });
 
-export const logout = () => ({
-  type: types.SAVE_USER,
-  payload: ''
+export const userSaved = username => ({
+  type: types.USER_SAVED,
+  payload: username
 });
 
 export const populateRoomsList = rooms => ({
@@ -21,9 +25,9 @@ export const populateRoomsList = rooms => ({
   payload: rooms
 });
 
-export const selectCurrentRoom = room => ({
+export const selectCurrentRoom = roomId => ({
   type: types.SELECT_CURRENT_ROOM,
-  payload: room
+  payload: roomId
 });
 
 export const updateCurrentRoom = room => ({
@@ -31,7 +35,7 @@ export const updateCurrentRoom = room => ({
   payload: room
 });
 
-export const addRoom = name => ({
+export const addRoom = roomName => ({
   type: types.ADD_ROOM,
-  name
+  payload: roomName
 });

@@ -20,7 +20,8 @@ class AddMessage extends Component {
     if (e.key === 'Enter' && this.validate(this.input.value)) {
       this.props.addMessage({
         message: this.input.value.trim(),
-        author: this.props.user
+        author: this.props.user,
+        roomId: this.props.currentRoom
       });
       this.input.value = '';
     }
@@ -39,6 +40,7 @@ class AddMessage extends Component {
 }
 
 const mapStateToProps = state => ({
+  currentRoom: state.currentRoom,
   user: state.user
 });
 

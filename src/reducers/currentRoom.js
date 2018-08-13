@@ -1,9 +1,9 @@
 import * as types from '../constants/ActionTypes';
 
-const rooms = (state = {}, action) => {
+const currentRoom = (state = -1, action) => {
   switch (action.type) {
     case types.SELECT_CURRENT_ROOM:
-    case types.CURRENT_ROOM:
+    // case types.CURRENT_ROOM:
     return action.payload;
 
     default:
@@ -11,4 +11,4 @@ const rooms = (state = {}, action) => {
   }
 };
 
-export default rooms;
+export default currentRoom;

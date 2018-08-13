@@ -15,27 +15,37 @@ class Login extends Component {
 
   componentDidUpdate () {
     const username = localStorage.getItem('chat-username');
-    if (username && this.props.currentRoom.id != null) {
+    if (username && this.props.currentRoom === -1 && this.props.rooms.length) {
       this.props.saveUser(username);
+    }
+    if (this.props.rooms.length && this.props.currentRoom === -1) {
+      this.props.selectCurrentRoom(0);
     }
   }
 
   onSubmit (e) {
     e.preventDefault();
+    if (this.roomInput) {
+      this.props.addRoom(this.roomInput.value);
+    }
+
     this.props.saveUser(this.usernameInput.value);
     localStorage.setItem('chat-username', this.usernameInput.value);
-
-    if (!this.roomInput) return;
-    this.props.addRoom(this.roomInput.value);
   }
 
   render () {
     return(
       <form onSubmit = {this.onSubmit.bind(this)}>
-        <input ref={node => this.usernameInput = node} />
+        <div>
+          <label htmlFor="username">Set your username</label>
+          <input id="username" ref={node => this.usernameInput = node} required />
+        </div>
         {
           !this.props.rooms.length ?
-            <input ref={node => this.roomInput = node} />
+            <div>
+              <label htmlFor="roomName">Add the first room</label>
+              <input id="roomName" ref={node => this.roomInput = node} required />
+            </div>
             : void 8
         }
         <button type="submit">Join!</button>
@@ -50,8 +60,9 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  saveUser: data => dispatch(actions.saveUser(data)),
-  addRoom: name => dispatch(actions.addRoom(name))
+  saveUser: username => dispatch(actions.saveUser({ username })),
+  addRoom: name => dispatch(actions.addRoom(name)),
+  selectCurrentRoom: room => dispatch(actions.selectCurrentRoom(room))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);
