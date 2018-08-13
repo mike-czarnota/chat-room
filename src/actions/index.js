@@ -1,29 +1,37 @@
 import * as types from '../constants/ActionTypes';
 
-let nextMessageId = 0,
-nextUserId = 0;
-
-export const addMessage = (message, author) => ({
+export const addMessage = data => ({
   type: types.ADD_MESSAGE,
-  id: nextMessageId++,
-  message,
-  author
+  message: data.message,
+  author: data.author
 });
 
-export const addUser = name => ({
-  type: types.ADD_USER,
-  id: nextUserId++,
+export const saveUser = username => ({
+  type: types.SAVE_USER,
+  payload: username
+});
+
+export const logout = () => ({
+  type: types.SAVE_USER,
+  payload: ''
+});
+
+export const populateRoomsList = rooms => ({
+  type: types.ROOMS_LIST,
+  payload: rooms
+});
+
+export const selectCurrentRoom = room => ({
+  type: types.SELECT_CURRENT_ROOM,
+  payload: room
+});
+
+export const updateCurrentRoom = room => ({
+  type: types.CURRENT_ROOM,
+  payload: room
+});
+
+export const addRoom = name => ({
+  type: types.ADD_ROOM,
   name
-});
-
-export const messageReceived = (message, author) => ({
-  type: types.MESSAGE_RECEIVED,
-  id: nextMessageId++,
-  message,
-  author
-});
-
-export const populateUsers = users => ({
-  type: types.USERS_LIST,
-  users
 });

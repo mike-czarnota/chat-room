@@ -1,24 +1,49 @@
-import React from 'react';
-import lifecycle from 'react-pure-lifecycle';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import * as actions from '../actions';
 
-let input;
+class AddMessage extends Component {
+  constructor () {
+    super();
+    this.input = null;
+  }
 
-const methods = {
-  componentDidMount: () => input && input.focus()
-};
+  componentDidMount () {
+    this.input && this.input.focus();
+  }
 
-const AddMessage = props => (
-  <section id="new-message">
-    <input
-      onKeyDown={e => {
-        if (e.key === 'Enter') {
-          props.dispatch(input.value, 'Me');
-          input.value = '';
-        }
-      }}
-      ref={node => input = node}
-      />
-  </section>
-  );
+  validate (val) {
+    return !!val.trim();
+  }
 
-export default lifecycle(methods)(AddMessage);
+  onKeyDown (e) {
+    if (e.key === 'Enter' && this.validate(this.input.value)) {
+      this.props.addMessage({
+        message: this.input.value.trim(),
+        author: this.props.user
+      });
+      this.input.value = '';
+    }
+  }
+
+  render () {
+    return (
+      <section id="new-message">
+        <input
+          onKeyDown={this.onKeyDown.bind(this)}
+          ref={node => this.input = node}
+          />
+      </section>
+    );
+  }
+}
+
+const mapStateToProps = state => ({
+  user: state.user
+});
+
+const mapDispatchToProps = dispatch => ({
+  addMessage: data => dispatch(actions.addMessage(data))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(AddMessage);
