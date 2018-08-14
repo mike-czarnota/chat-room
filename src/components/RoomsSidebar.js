@@ -23,15 +23,20 @@ class RoomsSidebar extends Component {
 
   onSubmit (e) {
     e.preventDefault();
-    this.props.addRoom(this.newRoomInput.value);
+    this.props.addRoom({
+      name: this.newRoomInput.value,
+      id: this.props.rooms.length
+    });
     this.newRoomInput.value = '';
   }
 
   chooseRoom (roomId) {
+    const oldRoomId = this.props.currentRoom;
     this.props.selectCurrentRoom(roomId);
     this.props.saveUser({
       username: this.props.user,
-      roomId
+      roomId,
+      oldRoomId
     });
   }
 
@@ -66,7 +71,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  addRoom: roomName => dispatch(actions.addRoom(roomName)),
+  addRoom: data => dispatch(actions.addRoom(data)),
   saveUser: roomId => dispatch(actions.saveUser(roomId)),
   selectCurrentRoom: roomId => dispatch(actions.selectCurrentRoom(roomId))
 });

@@ -26,7 +26,10 @@ class Login extends Component {
   onSubmit (e) {
     e.preventDefault();
     if (this.roomInput) {
-      this.props.addRoom(this.roomInput.value);
+      this.props.addRoom({
+        name: this.roomInput.value,
+        id: 0
+      });
     }
 
     this.props.saveUser(this.usernameInput.value);
@@ -61,7 +64,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   saveUser: username => dispatch(actions.saveUser({ username })),
-  addRoom: name => dispatch(actions.addRoom(name)),
+  addRoom: data => dispatch(actions.addRoom(data)),
   selectCurrentRoom: room => dispatch(actions.selectCurrentRoom(room))
 });
 

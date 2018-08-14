@@ -4,6 +4,18 @@ const wss = new WebSocket.Server({
   port: 8989
 });
 
+/*
+database = [{
+  id: 0,
+  name: 'name',
+  users: [],
+  messages: [{
+    author: 'Kenny',
+    message: 'Hi there'
+  }]
+}];
+*/
+
 const database = [];
 
 const getDb = () => JSON.stringify({

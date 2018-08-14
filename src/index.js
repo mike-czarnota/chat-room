@@ -10,18 +10,20 @@ import registerServiceWorker from './registerServiceWorker';
 import reducers from './reducers';
 import setupSocket from './sockets';
 import * as sagas from './sagas';
+import setupFirebase from './firebase/firebase';
 
 const sagaMiddleware = createSagaMiddleware();
 const store = createStore(reducers, applyMiddleware(sagaMiddleware));
-const socket = setupSocket(store.dispatch);
+const roomsFirebase = setupFirebase(store.dispatch);
+// const socket = setupSocket(store.dispatch);
 
-sagaMiddleware.run(sagas.handleNewMessage, { socket });
-sagaMiddleware.run(sagas.handleNewRoom, { socket });
-sagaMiddleware.run(sagas.handleNewUser, { socket });
-sagaMiddleware.run(sagas.handleLogout, { socket });
+// sagaMiddleware.run(sagas.handleNewMessage, { roomsFirebase });
+sagaMiddleware.run(sagas.handleNewRoom, { roomsFirebase });
+sagaMiddleware.run(sagas.handleNewUser, { roomsFirebase });
+sagaMiddleware.run(sagas.handleLogout, { roomsFirebase });
 
 ReactDOM.render(
   <Provider store={store}>
-    <App />
+  <App />
   </Provider>, document.getElementById('root'));
 registerServiceWorker();
