@@ -2,15 +2,38 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
 
+import { withStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
+import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+
+const styles = () => ({
+  container: {
+    width: 400,
+    padding: '40px 20px'
+  },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    height: '100%'
+  },
+  button: {
+    marginTop: 16,
+    padding: 10
+  }
+});
+
 class Login extends Component {
-  constructor () {
-    super();
-    this.usernameInput = null;
-    this.roomInput = null;
+  constructor (props) {
+    super(props);
+    this.username = "";
+    this.roomname = "";
   }
 
   componentDidMount () {
-    this.usernameInput && this.usernameInput.focus();
+    // this.username && this.username.focus();
   }
 
   componentDidUpdate () {
@@ -25,31 +48,53 @@ class Login extends Component {
 
   onSubmit (e) {
     e.preventDefault();
-    if (this.roomInput) {
-      this.props.addRoom(this.roomInput.value);
+    if (this.roomname) {
+      this.props.addRoom(this.roomname);
     }
 
-    this.props.saveUser(this.usernameInput.value);
-    localStorage.setItem('chat-username', this.usernameInput.value);
+    this.props.saveUser(this.username);
+    localStorage.setItem('chat-username', this.username);
+  }
+
+  handleChange (name) {
+    return event => this[name] = event.target.value;
   }
 
   render () {
+    const { classes } = this.props;
     return(
-      <form onSubmit = {this.onSubmit.bind(this)}>
-        <div>
-          <label htmlFor="username">Set your username</label>
-          <input id="username" ref={node => this.usernameInput = node} required />
-        </div>
-        {
-          !this.props.rooms.length ?
-            <div>
-              <label htmlFor="roomName">Add the first room</label>
-              <input id="roomName" ref={node => this.roomInput = node} required />
-            </div>
+      <Paper className={classes.container} elevation={1}>
+        <Typography variant="headline" component="h3">
+          Please, set your username
+          {
+            !this.props.rooms.length ?
+            " and add the first room."
             : void 8
-        }
-        <button type="submit">Join!</button>
-      </form>
+          }
+        </Typography>
+        <form className={classes.form} noValidate autoComplete="off" onSubmit={this.onSubmit.bind(this)}>
+          <TextField
+            required
+            id="username"
+            label="Username"
+            margin="normal"
+            onChange={this.handleChange('username')}
+            autoFocus
+          />
+          {
+            !this.props.rooms.length ?
+              <TextField
+                required
+                id="roomName"
+                label="Room"
+                margin="normal"
+                onChange={this.handleChange('roomname')}
+              />
+              : void 8
+          }
+          <Button className={classes.button} color="primary" variant="outlined" type="submit">Join!</Button>
+        </form>
+      </Paper>
     );
   }
 }
@@ -65,4 +110,4 @@ const mapDispatchToProps = dispatch => ({
   selectCurrentRoom: room => dispatch(actions.selectCurrentRoom(room))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Login));

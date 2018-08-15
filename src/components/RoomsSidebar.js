@@ -2,11 +2,38 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as actions from "../actions";
 
+import { withStyles } from '@material-ui/core/styles';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListSubheader from '@material-ui/core/ListSubheader';
+import Button from '@material-ui/core/Button';
+import AddIcon from '@material-ui/icons/Add';
+
+import AddRoomDialog from './AddRoomDialog';
+
+const styles = () => ({
+  root: {
+    width: '100%',
+    flex: 1,
+    borderRight: '1px solid #B6B6B6',
+    borderBottom: '1px solid #B6B6B6',
+    position: 'relative',
+    overflow: 'auto'
+  },
+  button: {
+    position: 'absolute',
+    bottom: 16,
+    right: 16
+  }
+});
+
 class RoomsSidebar extends Component {
   constructor (props) {
     super(props);
-    this.newRoomInput = null;
     this.currentRoomName = '';
+    this.state = {
+      dialogOpen: false
+    };
 
     this.setCurrentRoomName();
   }
@@ -21,10 +48,12 @@ class RoomsSidebar extends Component {
     }
   }
 
-  onSubmit (e) {
+  onSubmit (e, value) {
     e.preventDefault();
-    this.props.addRoom(this.newRoomInput.value);
-    this.newRoomInput.value = '';
+    this.setState({
+      dialogOpen: false
+    });
+    this.props.addRoom(value);
   }
 
   chooseRoom (roomId) {
@@ -35,26 +64,41 @@ class RoomsSidebar extends Component {
     });
   }
 
+  openAddRoomDialog () {
+    this.setState({
+      dialogOpen: true
+    });
+  }
+
+  onDialogClose () {
+    this.setState({
+      dialogOpen: false
+    });
+  }
+
   render () {
+    const { classes } = this.props;
     return (
-      <aside id="roomssidebar">
-        <h4>Rooms</h4>
-        {this.currentRoomName && <p>Chosen room: <i>{this.currentRoomName}</i></p>}
-        <ul>
+      <div className={classes.root}>
+        <List component="nav" subheader={<ListSubheader component="h4">Rooms</ListSubheader>}>
           {this.props.rooms && this.props.rooms.map(room => {
             const disabled = room.id === this.props.currentRoom;
             return (
-              <li key={room.id}>
-                <button onClick={this.chooseRoom.bind(this, room.id)} disabled={disabled}>{room.name}</button>
-              </li>
+              <ListItem button onClick={this.chooseRoom.bind(this, room.id)} disabled={disabled} key={room.id}>
+                {room.name}
+              </ListItem>
             )}
           )}
-        </ul>
-        <form onSubmit={this.onSubmit.bind(this)}>
-          <input type="text" ref={node => this.newRoomInput = node}/>
-          <button type="submit">Add room</button>
-        </form>
-      </aside>
+        </List>
+        <Button variant="fab" color="primary" className={classes.button} onClick={this.openAddRoomDialog.bind(this)}>
+          <AddIcon />
+        </Button>
+        <AddRoomDialog
+          onSubmit={this.onSubmit.bind(this)}
+          onClose={this.onDialogClose.bind(this)}
+          open={this.state.dialogOpen}
+        />
+      </div>
     );
   }
 }
@@ -71,4 +115,4 @@ const mapDispatchToProps = dispatch => ({
   selectCurrentRoom: roomId => dispatch(actions.selectCurrentRoom(roomId))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(RoomsSidebar);
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(RoomsSidebar));

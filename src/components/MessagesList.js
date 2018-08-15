@@ -1,6 +1,17 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = {
+  root: {
+    width: 'calc(100% - 32px)',
+    height: 'calc(100% - 33px)',
+    overflowY: 'auto',
+    padding: ' 0 16px'
+  }
+};
+
 class Sidebar extends Component {
   constructor (props) {
     super(props);
@@ -20,14 +31,15 @@ class Sidebar extends Component {
   }
 
   render () {
+    const { classes } = this.props;
     this.messages = this.getMessages();
     return (
-      <section id="messages-list" ref={node => this.list = node}>
+      <section className={classes.root} ref={node => this.list = node}>
         {this.messages && this.messages.map((msg, idx) => (
           <p key={idx}>
             <i>{msg.author}</i>: {msg.message}
           </p>
-          ))}
+        ))}
       </section>
     );
   }
@@ -38,4 +50,4 @@ const mapStateToProps = state => ({
   rooms: state.rooms
 });
 
-export default connect(mapStateToProps, null)(Sidebar);
+export default connect(mapStateToProps, null)(withStyles(styles)(Sidebar));

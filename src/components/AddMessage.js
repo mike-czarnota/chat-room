@@ -2,14 +2,28 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
 
-class AddMessage extends Component {
-  constructor () {
-    super();
-    this.input = null;
-  }
+import { withStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
 
-  componentDidMount () {
-    this.input && this.input.focus();
+const styles = {
+  root: {
+    position: 'fixed',
+    bottom: 0,
+    width: '100%',
+    borderTop: '1px solid #B6B6B6'
+  },
+  input: {
+    width: '100%',
+    backgroundColor: '#fff'
+  }
+};
+
+class AddMessage extends Component {
+  constructor (props) {
+    super(props);
+    this.state = {
+      value: ''
+    };
   }
 
   validate (val) {
@@ -17,23 +31,36 @@ class AddMessage extends Component {
   }
 
   onKeyDown (e) {
-    if (e.key === 'Enter' && this.validate(this.input.value)) {
+    const value = e.target.value;
+    if (e.key === 'Enter' && this.validate(value)) {
       this.props.addMessage({
-        message: this.input.value.trim(),
+        message: value.trim(),
         author: this.props.user,
         roomId: this.props.currentRoom
       });
-      this.input.value = '';
+      this.setState({
+        value: ''
+      });
     }
   }
 
+  onChange (e) {
+    this.setState({
+      value: e.target.value
+    });
+  }
+
   render () {
+    const { classes } = this.props;
     return (
-      <section id="new-message">
-        <input
+      <section className={classes.root}>
+        <TextField
+          className={classes.input}
+          onChange={this.onChange.bind(this)}
           onKeyDown={this.onKeyDown.bind(this)}
-          ref={node => this.input = node}
-          />
+          value={this.state.value}
+          autoFocus
+        />
       </section>
     );
   }
@@ -48,4 +75,4 @@ const mapDispatchToProps = dispatch => ({
   addMessage: data => dispatch(actions.addMessage(data))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(AddMessage);
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(AddMessage));
